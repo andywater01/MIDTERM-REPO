@@ -285,22 +285,22 @@ int main() {
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> uvs;
 
-	VertexArrayObject::sptr theVAO = nullptr;
-	bool loader = ObjLoader::LoadFromFile("SkyBoundCharacter2.obj", positions, uvs, normals);
+	VertexArrayObject::sptr paddleVAO = nullptr;
+	bool loader = ObjLoader::LoadFromFile("Paddle.obj", positions, uvs, normals);
 
-	theVAO = VertexArrayObject::Create();
+	paddleVAO = VertexArrayObject::Create();
 	VertexBuffer::sptr vertices = VertexBuffer::Create();
 	vertices->LoadData(positions.data(), positions.size());
 
 	VertexBuffer::sptr _normals = VertexBuffer::Create();
 	_normals->LoadData(normals.data(), normals.size());
 
-	theVAO = VertexArrayObject::Create();
+	paddleVAO = VertexArrayObject::Create();
 
-	theVAO->AddVertexBuffer(vertices, {
+	paddleVAO->AddVertexBuffer(vertices, {
 		BufferAttribute(0, 3, GL_FLOAT, false, 0, NULL)
 		});
-	theVAO->AddVertexBuffer(_normals, {
+	paddleVAO->AddVertexBuffer(_normals, {
 		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
 		});
 
@@ -367,11 +367,17 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	glm::mat4 transform = glm::mat4(0.8f);
+	glm::mat4 transform = glm::mat4(1.0f);
 	glm::mat4 transform2 = glm::mat4(1.0f);
 	glm::mat4 transform3 = glm::mat4(1.0f);
 	glm::mat4 transform4 = glm::mat4(1.2f);
 
+
+	//Rotations
+	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
+
+	//Translations
+	transform = glm::translate(transform, glm::vec3(0.0f, 8.0f, 0.0f));
 
 
 	camera = Camera::Create();
@@ -383,7 +389,7 @@ int main() {
 	camera->SetPosition(glm::vec3(0, 1, 10)); // Set initial position
 	camera->SetUp(glm::vec3(0, 0, 1)); // Use a z-up coordinate system
 	camera->LookAt(glm::vec3(0.0f)); // Look at center of the screen
-	camera->SetFovDegrees(90.0f); // Set an initial FOV
+	camera->SetFovDegrees(120.0f); // Set an initial FOV
 	
 	// This is an example of a key press handling helper. Look at InputHelpers.h an .cpp to see
 	// how this is implemented. Note that the ampersand here is capturing the variables within
@@ -411,20 +417,11 @@ int main() {
 		// We need to poll our key watchers so they can do their logic with the GLFW state
 		tKeyWatcher.Poll(window);
 
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			transform3 = glm::translate(transform3, glm::vec3( 1.0f * dt, 0.0f, 0.0f));
-			//camera->SetPosition(camera->GetPosition() + glm::vec3());
-			//printf("Cam Test\n");
-			
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.5f));
 		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			transform3 = glm::translate(transform3, glm::vec3(-1.0f * dt, 0.0f, 0.0f));
-		}
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			transform3 = glm::translate(transform3, glm::vec3(0.0f, -1.0f * dt, 0.0f));
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			transform3 = glm::translate(transform3, glm::vec3(1.0f,  1.0f * dt, 0.0f));
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -0.5f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
 		{
@@ -439,13 +436,14 @@ int main() {
 			
 		}
 				
-		transform = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 0));
+		//transform = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 0));
 		transform2 = transform * glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.0f, glm::sin(static_cast<float>(thisFrame))));
 
 		//transform4 =  glm::translate(glm::mat4(1.0f), glm::vec3(3, 0.0f, glm::sin(static_cast<float>(thisFrame))));
 		transform4 = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, -1, 0));
 		
 		transform4 = transform4 * glm::translate(glm::mat4(1.0f), glm::vec3(3, 0.0f, glm::sin(static_cast<float>(thisFrame))));
+
 		
 		glClearColor(0.08f, 0.17f, 0.31f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -462,7 +460,7 @@ int main() {
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform);
 		shader->SetUniformMatrix("u_Model", transform);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform));
-		theVAO->Render();
+		paddleVAO->Render();
 
 
 
