@@ -305,6 +305,57 @@ int main() {
 		});
 
 
+	//Ball.obj
+	std::vector<glm::vec3> positions_ball;
+	std::vector<glm::vec3> normals_ball;
+	std::vector<glm::vec2> uvs_ball;
+
+	VertexArrayObject::sptr ballVAO = nullptr;
+	bool ball_loader = ObjLoader::LoadFromFile("Ball.obj", positions_ball, uvs_ball, normals_ball);
+
+	ballVAO = VertexArrayObject::Create();
+	VertexBuffer::sptr ball_vertices = VertexBuffer::Create();
+	ball_vertices->LoadData(positions_ball.data(), positions_ball.size());
+
+	VertexBuffer::sptr ball_normals = VertexBuffer::Create();
+	ball_normals->LoadData(normals_ball.data(), normals_ball.size());
+
+	ballVAO = VertexArrayObject::Create();
+
+	ballVAO->AddVertexBuffer(ball_vertices, {
+		BufferAttribute(0, 3, GL_FLOAT, false, 0, NULL)
+		});
+	ballVAO->AddVertexBuffer(ball_normals, {
+		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
+		});
+
+	/*
+	//brick.obj
+	std::vector<glm::vec3> positions_brick;
+	std::vector<glm::vec3> normals_brick;
+	std::vector<glm::vec2> uvs_brick;
+
+	VertexArrayObject::sptr brickVAO = nullptr;
+	bool brick_loader = ObjLoader::LoadFromFile("brick.obj", positions_brick, uvs_brick, normals_brick);
+
+	brickVAO = VertexArrayObject::Create();
+	VertexBuffer::sptr brick_vertices = VertexBuffer::Create();
+	ball_vertices->LoadData(positions_brick.data(), positions_brick.size());
+
+	VertexBuffer::sptr brick_normals = VertexBuffer::Create();
+	brick_normals->LoadData(normals_brick.data(), normals_brick.size());
+
+	brickVAO = VertexArrayObject::Create();
+
+	brickVAO->AddVertexBuffer(brick_vertices, {
+		BufferAttribute(0, 3, GL_FLOAT, false, 0, NULL)
+		});
+	brickVAO->AddVertexBuffer(brick_normals, {
+		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
+		});
+	*/
+
+
 	// Load our shaders
 	Shader::sptr shader = Shader::Create();
 	shader->LoadShaderPartFromFile("shaders/vertex_shader.glsl", GL_VERTEX_SHADER);
@@ -377,8 +428,9 @@ int main() {
 	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 
 	//Translations
-	transform = glm::translate(transform, glm::vec3(0.0f, 8.0f, 0.0f));
-
+	transform = glm::translate(transform, glm::vec3(0.0f, 9.5f, 0.0f));
+	transform2 = glm::translate(transform2, glm::vec3(0.0f, 1.0f, 0.0f));
+	transform3 = glm::translate(transform3, glm::vec3(3.0f, -9.0f, 0.0f));
 
 	camera = Camera::Create();
 
@@ -418,10 +470,10 @@ int main() {
 		tKeyWatcher.Poll(window);
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.5f));
+			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 7.0f) * dt);
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -0.5f));
+			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -7.0f) * dt);
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
 		{
@@ -437,12 +489,12 @@ int main() {
 		}
 				
 		//transform = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 0));
-		transform2 = transform * glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.0f, glm::sin(static_cast<float>(thisFrame))));
+		//transform2 = transform * glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.0f, glm::sin(static_cast<float>(thisFrame))));
 
 		//transform4 =  glm::translate(glm::mat4(1.0f), glm::vec3(3, 0.0f, glm::sin(static_cast<float>(thisFrame))));
-		transform4 = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, -1, 0));
+		//transform4 = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, -1, 0));
 		
-		transform4 = transform4 * glm::translate(glm::mat4(1.0f), glm::vec3(3, 0.0f, glm::sin(static_cast<float>(thisFrame))));
+		//transform4 = transform4 * glm::translate(glm::mat4(1.0f), glm::vec3(3, 0.0f, glm::sin(static_cast<float>(thisFrame))));
 
 		
 		glClearColor(0.08f, 0.17f, 0.31f, 1.0f);
@@ -462,8 +514,15 @@ int main() {
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform));
 		paddleVAO->Render();
 
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
+		shader->SetUniformMatrix("u_Model", transform2);
+		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform2));
+		ballVAO->Render();
 
-
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
+		shader->SetUniformMatrix("u_Model", transform3);
+		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
+		//brickVAO->Render();
 		
 		
 
