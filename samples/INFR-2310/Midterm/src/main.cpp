@@ -329,18 +329,18 @@ int main() {
 		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
 		});
 
-	/*
+	
 	//brick.obj
 	std::vector<glm::vec3> positions_brick;
 	std::vector<glm::vec3> normals_brick;
 	std::vector<glm::vec2> uvs_brick;
 
 	VertexArrayObject::sptr brickVAO = nullptr;
-	bool brick_loader = ObjLoader::LoadFromFile("brick.obj", positions_brick, uvs_brick, normals_brick);
+	bool brick_loader = ObjLoader::LoadFromFile("brick1.obj", positions_brick, uvs_brick, normals_brick);
 
 	brickVAO = VertexArrayObject::Create();
 	VertexBuffer::sptr brick_vertices = VertexBuffer::Create();
-	ball_vertices->LoadData(positions_brick.data(), positions_brick.size());
+	brick_vertices->LoadData(positions_brick.data(), positions_brick.size());
 
 	VertexBuffer::sptr brick_normals = VertexBuffer::Create();
 	brick_normals->LoadData(normals_brick.data(), normals_brick.size());
@@ -353,7 +353,7 @@ int main() {
 	brickVAO->AddVertexBuffer(brick_normals, {
 		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
 		});
-	*/
+	
 
 
 	// Load our shaders
@@ -430,6 +430,8 @@ int main() {
 	//Translations
 	transform = glm::translate(transform, glm::vec3(0.0f, 9.5f, 0.0f));
 	transform2 = glm::translate(transform2, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	transform3 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 	transform3 = glm::translate(transform3, glm::vec3(3.0f, -9.0f, 0.0f));
 
 	camera = Camera::Create();
@@ -522,7 +524,7 @@ int main() {
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
 		shader->SetUniformMatrix("u_Model", transform3);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
-		//brickVAO->Render();
+		brickVAO->Render();
 		
 		
 
