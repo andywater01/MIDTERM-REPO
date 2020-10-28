@@ -179,6 +179,51 @@ void RenderImGui() {
 	}
 }
 
+
+
+void setBricks(std::vector <glm::mat4> transform)
+{
+	glm::vec3 brickPos = glm::vec3(3.0f, -9.0f, 0.0f);
+
+	int brickCounter = 0;
+
+	for (int y = 0; y < 3; y++)
+	{
+		brickPos += glm::vec3(0.0f, 4.0f, 0.0f);
+
+		for (int x = 0; x < 3; x++)
+		{
+			brickPos += glm::vec3(-4.0f, 0.0f, 0.0f);
+
+			transform[brickCounter] = glm::translate(transform[brickCounter], brickPos);
+
+			brickCounter++;
+		}
+	}
+}
+
+
+
+void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector <glm::mat4> transform)
+{
+	int brickCounter = 0;
+
+	for (int y = 0; y < 3; y++)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform[brickCounter]);
+			shader->SetUniformMatrix("u_Model", transform[brickCounter]);
+			shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform[brickCounter]));
+			VAO->Render();
+
+			brickCounter++;
+		}
+	}
+}
+
+
+
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
 
@@ -423,6 +468,7 @@ int main() {
 	glm::mat4 transform3 = glm::mat4(1.0f);
 	glm::mat4 transform4 = glm::mat4(1.2f);
 
+	std::vector <glm::mat4> brickTransform[6];
 
 	//Rotations
 	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
@@ -434,9 +480,10 @@ int main() {
 	transform3 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 	transform3 = glm::translate(transform3, glm::vec3(3.0f, -9.0f, 0.0f));
 
+	//setBricks(brickTransform[6]);
+
 	camera = Camera::Create();
 
-	
 
 	
 
@@ -444,6 +491,8 @@ int main() {
 	camera->SetUp(glm::vec3(0, 0, 1)); // Use a z-up coordinate system
 	camera->LookAt(glm::vec3(0.0f)); // Look at center of the screen
 	camera->SetFovDegrees(120.0f); // Set an initial FOV
+
+
 	
 	// This is an example of a key press handling helper. Look at InputHelpers.h an .cpp to see
 	// how this is implemented. Note that the ampersand here is capturing the variables within
@@ -459,6 +508,7 @@ int main() {
 		
 	// Our high-precision timer
 	double lastFrame = glfwGetTime();
+
 	
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
@@ -526,7 +576,7 @@ int main() {
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
 		brickVAO->Render();
 		
-		
+		//createBricks(shader, brickVAO, brickTransform[6]);
 
 		RenderImGui();
 
