@@ -189,11 +189,13 @@ void setBricks(std::vector <glm::mat4> transform)
 
 	for (int y = 0; y < 3; y++)
 	{
-		brickPos += glm::vec3(0.0f, 4.0f, 0.0f);
+		brickPos += glm::vec3(0.0f, 3.5f, 0.0f);
 
 		for (int x = 0; x < 3; x++)
 		{
-			brickPos += glm::vec3(-4.0f, 0.0f, 0.0f);
+			brickPos += glm::vec3(3.5f, 0.0f, 0.0f);
+
+			transform[brickCounter] = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 
 			transform[brickCounter] = glm::translate(transform[brickCounter], brickPos);
 
@@ -206,6 +208,7 @@ void setBricks(std::vector <glm::mat4> transform)
 
 void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector <glm::mat4> transform)
 {
+	/*
 	int brickCounter = 0;
 
 	for (int y = 0; y < 3; y++)
@@ -219,6 +222,15 @@ void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector 
 
 			brickCounter++;
 		}
+	}
+	*/
+
+	for (int i = 0; i < 9; i++)
+	{
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform[i]);
+		shader->SetUniformMatrix("u_Model", transform[i]);
+		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform[i]));
+		VAO->Render();
 	}
 }
 
@@ -468,8 +480,19 @@ int main() {
 	glm::mat4 transform3 = glm::mat4(1.0f);
 	glm::mat4 transform4 = glm::mat4(1.2f);
 
-	std::vector <glm::mat4> brickTransform[6];
+	std::vector <glm::mat4> brickTransform;
 
+	for (int i = 0; i < 9; i++)
+	{
+		brickTransform.push_back(glm::mat4(1.0f));
+	}
+
+	//setBricks(brickTransform);
+
+
+	
+
+	
 	//Rotations
 	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 
@@ -480,7 +503,33 @@ int main() {
 	transform3 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 	transform3 = glm::translate(transform3, glm::vec3(3.0f, -9.0f, 0.0f));
 
-	//setBricks(brickTransform[6]);
+	//brickTransform[4] = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, 0.0f, 0.0f));
+
+	int brickCounter = 0;
+	float xMove = 0.0f;
+	float yMove = -2.0f;
+
+
+	
+	
+	for (int y = 0; y < 3; y++)
+	{
+		yMove += 2.0f;
+		for (int x = 0; x < 3; x++)
+		{
+			brickTransform[brickCounter] = glm::translate(brickTransform[brickCounter], glm::vec3(3.0f + xMove, -9.0f + yMove, 0.0f));
+			xMove += -2.0f;
+			brickCounter++;
+		}
+	}
+	
+
+	for (int i = 0; i < 9; i++)
+	{
+		brickTransform[i] = glm::rotate(brickTransform[i], glm::radians(90.0f), glm::vec3(0, 1, 0));
+	}
+
+	
 
 	camera = Camera::Create();
 
@@ -522,10 +571,11 @@ int main() {
 		tKeyWatcher.Poll(window);
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 7.0f) * dt);
+			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 10.0f) * dt);
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -7.0f) * dt);
+			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -10.0f) * dt);
+			brickTransform[2] = glm::translate(brickTransform[2], glm::vec3(0.0f, 0.0f, -10.0f) * dt);
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
 		{
@@ -571,12 +621,17 @@ int main() {
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform2));
 		ballVAO->Render();
 
-		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
-		shader->SetUniformMatrix("u_Model", transform3);
-		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
-		brickVAO->Render();
+		//shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
+		//shader->SetUniformMatrix("u_Model", transform3);
+		//shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
+		//brickVAO->Render();
+
+		//shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * brickTransform[1]);
+		//shader->SetUniformMatrix("u_Model", brickTransform[1]);
+		//shader->SetUniformMatrix("u_ModelRotation", glm::mat3(brickTransform[1]));
+		//brickVAO->Render();
 		
-		//createBricks(shader, brickVAO, brickTransform[6]);
+		createBricks(shader, brickVAO, brickTransform);
 
 		RenderImGui();
 
