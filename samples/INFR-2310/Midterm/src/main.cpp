@@ -23,6 +23,7 @@
 #include "InputHelpers.h"
 #include "MeshBuilder.h"
 #include "MeshFactory.h"
+#include "Entity.h"
 //Includes the obj loader header
 #include "ObjLoader.h"
 //Includes the not-obj header
@@ -208,24 +209,7 @@ void setBricks(std::vector <glm::mat4> transform)
 
 void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector <glm::mat4> transform)
 {
-	/*
-	int brickCounter = 0;
-
-	for (int y = 0; y < 3; y++)
-	{
-		for (int x = 0; x < 3; x++)
-		{
-			shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform[brickCounter]);
-			shader->SetUniformMatrix("u_Model", transform[brickCounter]);
-			shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform[brickCounter]));
-			VAO->Render();
-
-			brickCounter++;
-		}
-	}
-	*/
-
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < 54; i++)
 	{
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform[i]);
 		shader->SetUniformMatrix("u_Model", transform[i]);
@@ -235,6 +219,40 @@ void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector 
 }
 
 
+
+glm::mat4 ballMovement(glm::mat4 transform, float speed, float dt)
+{
+	glm::vec3 moveDir = glm::vec3(-1.0f, 1.0f, 0.0f);
+	glm::vec3 ballPos = glm::vec3();
+
+	transform = glm::translate(transform, moveDir * speed * dt);
+	return transform;
+}
+
+/*
+function intersect(sphere, box) {
+	// get box closest point to sphere center by clamping
+	var x = Math.max(box.minX, Math.min(sphere.x, box.maxX));
+	var y = Math.max(box.minY, Math.min(sphere.y, box.maxY));
+	var z = Math.max(box.minZ, Math.min(sphere.z, box.maxZ));
+
+	// this is the same as isPointInsideSphere
+	var distance = Math.sqrt((x - sphere.x) * (x - sphere.x) +
+		(y - sphere.y) * (y - sphere.y) +
+		(z - sphere.z) * (z - sphere.z));
+
+	return distance < sphere.radius;
+}
+*/
+
+void checkCollision(Entity &ball, Entity &gameObject, float length, float width)
+{
+	if ((ball.transform.m_pos.x >= gameObject.transform.m_pos.x - length && ball.transform.m_pos.x <= gameObject.transform.m_pos.x + length) 
+		&& (ball.transform.m_pos.y <= gameObject.transform.m_pos.y - width && ball.transform.m_pos.y >= gameObject.transform.m_pos.y + width))
+	{
+		std::cout << "Hit!" << std::endl;
+	}
+}
 
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
@@ -482,22 +500,37 @@ int main() {
 
 	std::vector <glm::mat4> brickTransform;
 
-	for (int i = 0; i < 9; i++)
+	//Creating the bricks
+	for (int i = 0; i < 54; i++)
 	{
 		brickTransform.push_back(glm::mat4(1.0f));
 	}
 
 	//setBricks(brickTransform);
 
+	//Paddle Entity
+	auto paddleEntity = Entity::Create();
+
+	paddleEntity.transform.m_rotation = glm::rotate(paddleEntity.transform.RecomputeGlobal(), glm::radians(90.0f), glm::vec3(0, 1, 0));
+	paddleEntity.transform.m_pos = glm::vec3(0.0f, 9.5f, 0.0f);
+
+	transform = paddleEntity.transform.RecomputeGlobal();
+
+
+	//Ball Entity
+	auto ballEntity = Entity::Create();
+	paddleEntity.transform.m_pos = glm::vec3(0.0f, -2.0f, 0.0f);
+	transform2 = paddleEntity.transform.RecomputeGlobal();
+
 
 	
-
+	//paddleEntity.Get<Transform>().m_pos.x
 	
 	//Rotations
-	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
+	//transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 
 	//Translations
-	transform = glm::translate(transform, glm::vec3(0.0f, 9.5f, 0.0f));
+	//transform = glm::translate(transform, glm::vec3(0.0f, 9.5f, 0.0f));
 	transform2 = glm::translate(transform2, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	transform3 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
@@ -509,22 +542,38 @@ int main() {
 	float xMove = 0.0f;
 	float yMove = -2.0f;
 
+	std::vector<float> brickMinX, brickMinY, brickMaxX, brickMaxY;
 
 	
 	
-	for (int y = 0; y < 3; y++)
+	for (int y = 0; y < 6; y++)
 	{
 		yMove += 2.0f;
-		for (int x = 0; x < 3; x++)
+		for (int x = 0; x < 9; x++)
 		{
-			brickTransform[brickCounter] = glm::translate(brickTransform[brickCounter], glm::vec3(3.0f + xMove, -9.0f + yMove, 0.0f));
-			xMove += -2.0f;
+			brickTransform[brickCounter] = glm::translate(brickTransform[brickCounter], glm::vec3(14.0f + xMove, -16.0f + yMove, 0.0f));
+			xMove += -3.5f;
 			brickCounter++;
 		}
+		xMove = 0.0f;
 	}
 	
+	/*
+	for (int y = 0; y < 6; y++)
+	{
+		yMove += 2.0f;
+		for (int x = 0; x < 9; x++)
+		{
+			brickTransform[brickCounter] = glm::translate(brickTransform[brickCounter], glm::vec3(14.0f + xMove, -16.0f + yMove, 0.0f));
+			xMove += -3.5f;
+			brickCounter++;
+		}
+		xMove = 0.0f;
+	}
+	*/
+	
 
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < 54; i++)
 	{
 		brickTransform[i] = glm::rotate(brickTransform[i], glm::radians(90.0f), glm::vec3(0, 1, 0));
 	}
@@ -534,15 +583,17 @@ int main() {
 	camera = Camera::Create();
 
 
-	
 
 	camera->SetPosition(glm::vec3(0, 1, 10)); // Set initial position
 	camera->SetUp(glm::vec3(0, 0, 1)); // Use a z-up coordinate system
 	camera->LookAt(glm::vec3(0.0f)); // Look at center of the screen
 	camera->SetFovDegrees(120.0f); // Set an initial FOV
 
+	//Ball Variables
+	float ballSpeed = 1.0f;
+	glm::vec3 moveDir = glm::vec3(-1.0f, 1.0f, 0.0f);
+	glm::vec3 ballPos = glm::vec3();
 
-	
 	// This is an example of a key press handling helper. Look at InputHelpers.h an .cpp to see
 	// how this is implemented. Note that the ampersand here is capturing the variables within
 	// the scope. If you wanted to do some method on the class, your best bet would be to give it a method and
@@ -575,7 +626,7 @@ int main() {
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -10.0f) * dt);
-			brickTransform[2] = glm::translate(brickTransform[2], glm::vec3(0.0f, 0.0f, -10.0f) * dt);
+			//brickTransform[2] = glm::translate(brickTransform[2], glm::vec3(0.0f, 0.0f, -10.0f) * dt);
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
 		{
@@ -589,6 +640,10 @@ int main() {
 			isPressed = false;
 			
 		}
+		else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+		{
+			
+		}
 				
 		//transform = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 0));
 		//transform2 = transform * glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.0f, glm::sin(static_cast<float>(thisFrame))));
@@ -597,7 +652,6 @@ int main() {
 		//transform4 = glm::rotate_slow(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, -1, 0));
 		
 		//transform4 = transform4 * glm::translate(glm::mat4(1.0f), glm::vec3(3, 0.0f, glm::sin(static_cast<float>(thisFrame))));
-
 		
 		glClearColor(0.08f, 0.17f, 0.31f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -616,6 +670,11 @@ int main() {
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform));
 		paddleVAO->Render();
 
+
+
+		transform2 = glm::translate(transform2, moveDir * ballSpeed * dt);
+
+
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
 		shader->SetUniformMatrix("u_Model", transform2);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform2));
@@ -632,6 +691,8 @@ int main() {
 		//brickVAO->Render();
 		
 		createBricks(shader, brickVAO, brickTransform);
+
+		checkCollision(ballEntity, paddleEntity, 10.0f, 2.0f);
 
 		RenderImGui();
 

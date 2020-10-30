@@ -88,7 +88,7 @@ void Camera::__CalculateProjection() {
 	}
 	else
 	{
-		_projection1 = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, _nearPlane, _farPlane);
+		_projection1 = glm::ortho(-24.0f, 24.0f, -24.0f, 24.0f, _nearPlane, _farPlane);
 		_isDirty = true;
 		printf("ortho");
 	}

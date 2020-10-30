@@ -1,68 +1,36 @@
 #include "Scene.h"
-#include "GLM/glm.hpp"
 
-namespace Midterm {
+Scene::Scene(std::string name)
+{
+	m_name = name;
+}
 
-	static void DoMath(const glm::mat4& transform)
+void Scene::Unload()
+{
+	if (m_sceneReg != nullptr)
 	{
-
+		delete m_sceneReg;
+		m_sceneReg = nullptr;
 	}
-
-	Scene::Scene() 
-	{
-		struct MeshComponent {
-		
-			float data;
-			MeshComponent() = default;
-
-		};
-
-		struct TransformComponent
-		{
-			glm::mat4 Transform;
-
-			TransformComponent() = default;
-			TransformComponent(const TransformComponent&) = default;
-			TransformComponent(const glm::mat4& transform)
-				: Transform(transform) {}
-
-			operator glm::mat4& () { return Transform; }
-			operator const glm::mat4&() const { return Transform; }
-		};
-
-		TransformComponent transform;
-		DoMath(transform);
+}
 
 
-		entt::entity entity = m_Registry.create();
-		m_Registry.emplace<TransformComponent>(entity, glm::mat4(1.0f));
+entt::registry* Scene::GetScene() const
+{
+	return m_sceneReg;
+}
 
-		m_Registry.remove<TransformComponent>(entity);
+void Scene::SetScene(entt::registry& scene)
+{
+	m_sceneReg = &scene;
+}
 
-		if (m_Registry.has<TransformComponent>(entity))
-		{
-			TransformComponent& transform = m_Registry.get<TransformComponent>(entity);
-		}
+std::string Scene::GetName() const
+{
+	return m_name;
+}
 
-
-		auto view = m_Registry.view<TransformComponent>();
-		for (auto entity : view)
-		{
-			TransformComponent& transform = view.get<TransformComponent>(entity);
-		}
-
-
-		auto group = m_Registry.group<TransformComponent>(entt::get<MeshComponent>);
-		for (auto entity : group)
-		{
-			auto&[transform, mesh] = group.get<TransformComponent, MeshComponent>(entity);
-		}
-
-	}
-
-	Scene::~Scene()
-	{
-
-	}
-
+void Scene::SetName(std::string name)
+{
+	m_name = name;
 }
