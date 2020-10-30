@@ -683,10 +683,18 @@ int main() {
 		ballEntity.transform.m_pos.y += moveDir.y * dt;
 		
 		// Checks balls distance to paddle height
-		if (ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.x >= (paddleEntity.transform.m_pos.x) - 2 && (ballEntity.transform.m_pos.x <= (paddleEntity.transform.m_pos.x + 2))))
+		if (ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f) && (ballEntity.transform.m_pos.x >= (paddleEntity.transform.m_pos.x) - 2 && (ballEntity.transform.m_pos.x <= (paddleEntity.transform.m_pos.x + 2))))
 		{
 			moveDir = moveDir * (-1.0f);
 		}
+		/*else if (ballEntity.transform.m_pos.y >= 9.5f)
+		{
+			ballEntity.transform.m_pos.x = 0.0f;
+			ballEntity.transform.m_pos.y = -10.0f;
+			ballEntity.transform.m_pos.z = 0.0f;
+			transform2 = glm::translate(transform2, glm::vec3(ballEntity.transform.m_pos.x, ballEntity.transform.m_pos.y, ballEntity.transform.m_pos.z));
+			
+		}*/
 
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
 		shader->SetUniformMatrix("u_Model", transform2);
