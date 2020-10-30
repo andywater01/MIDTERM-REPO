@@ -218,16 +218,16 @@ void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector 
 	}
 }
 
-
-
-glm::mat4 ballMovement(glm::mat4 transform, float speed, float dt)
+//Ball movement function
+void ballMovement(glm::mat4 transform, float dt)
 {
-	glm::vec3 moveDir = glm::vec3(-1.0f, 1.0f, 0.0f);
-	glm::vec3 ballPos = glm::vec3();
+	glm::vec3 moveDir = glm::vec3(-1.0f, 0.0f, 0.0f);
+	//glm::vec3 ballPos = glm::vec3();
 
-	transform = glm::translate(transform, moveDir * speed * dt);
-	return transform;
+	transform = glm::translate(transform, moveDir * dt);
 }
+
+
 
 /*
 function intersect(sphere, box) {
@@ -519,8 +519,8 @@ int main() {
 
 	//Ball Entity
 	auto ballEntity = Entity::Create();
-	paddleEntity.transform.m_pos = glm::vec3(0.0f, -2.0f, 0.0f);
-	transform2 = paddleEntity.transform.RecomputeGlobal();
+	ballEntity.transform.m_pos = glm::vec3(0.0f, -2.0f, 0.0f);
+	transform2 = ballEntity.transform.RecomputeGlobal();
 
 
 	
@@ -531,7 +531,7 @@ int main() {
 
 	//Translations
 	//transform = glm::translate(transform, glm::vec3(0.0f, 9.5f, 0.0f));
-	transform2 = glm::translate(transform2, glm::vec3(0.0f, 1.0f, 0.0f));
+	//transform2 = glm::translate(transform2, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	transform3 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 	transform3 = glm::translate(transform3, glm::vec3(3.0f, -9.0f, 0.0f));
@@ -591,7 +591,7 @@ int main() {
 
 	//Ball Variables
 	float ballSpeed = 1.0f;
-	glm::vec3 moveDir = glm::vec3(-1.0f, 1.0f, 0.0f);
+	glm::vec3 moveDir = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 ballPos = glm::vec3();
 
 	// This is an example of a key press handling helper. Look at InputHelpers.h an .cpp to see
@@ -672,13 +672,15 @@ int main() {
 
 
 
-		transform2 = glm::translate(transform2, moveDir * ballSpeed * dt);
-
+		//transform2 = glm::translate(transform2, moveDir * ballSpeed * dt);
+		transform2 = glm::translate(transform2, moveDir * dt);
 
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
 		shader->SetUniformMatrix("u_Model", transform2);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform2));
+		//ballMovement(transform2, dt);
 		ballVAO->Render();
+		
 
 		//shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
 		//shader->SetUniformMatrix("u_Model", transform3);
