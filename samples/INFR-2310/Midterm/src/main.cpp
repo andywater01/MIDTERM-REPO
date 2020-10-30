@@ -247,16 +247,23 @@ function intersect(sphere, box) {
 
 void checkCollision(Entity &ball, Entity &gameObject, float length, float width)
 {
-	if ((ball.transform.m_pos.x >= gameObject.transform.m_pos.x - length && ball.transform.m_pos.x <= gameObject.transform.m_pos.x + length) 
-		&& (ball.transform.m_pos.y <= gameObject.transform.m_pos.y - width && ball.transform.m_pos.y >= gameObject.transform.m_pos.y + width))
+	for (int i = 0; i <= 54; i++)
 	{
-		printf("HIT!");
+		if (((ball.transform.m_pos.x <= gameObject.transform.m_pos.x - length) && (ball.transform.m_pos.x >= gameObject.transform.m_pos.x + length)
+			&& (ball.transform.m_pos.y <= gameObject.transform.m_pos.y - width && ball.transform.m_pos.y >= gameObject.transform.m_pos.y + width)))
+		{
+			printf("HIT!");
+		}
 	}
+	
 	/*if (ball.transform.m_pos.y <= 9.5)
 	{
 		std::cout << (ball.transform.m_pos.y) << std::endl;
 	}*/
 }
+
+
+
 
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
@@ -526,7 +533,10 @@ int main() {
 	ballEntity.transform.m_pos = glm::vec3(0.0f, -2.0f, 0.0f);
 	transform2 = ballEntity.transform.RecomputeGlobal();
 
+	//Brick Entity
+	auto BrickEntity = Entity::Create();
 
+	transform3 = BrickEntity.transform.RecomputeGlobal();
 	
 	//paddleEntity.Get<Transform>().m_pos.x
 	
@@ -594,8 +604,8 @@ int main() {
 	camera->SetFovDegrees(120.0f); // Set an initial FOV
 
 	//Ball Variables
-	float ballSpeed = 1.0f;
-	glm::vec3 moveDir = glm::vec3(0.0f, 1.0f, 0.0f);
+	float ballSpeed = 3.0f;
+	glm::vec3 moveDir = glm::vec3(-1.0f, 1.0f, 0.0f);
 	glm::vec3 ballPos = glm::vec3();
 
 	// This is an example of a key press handling helper. Look at InputHelpers.h an .cpp to see
@@ -621,6 +631,7 @@ int main() {
 		// Calculate the time since our last frame (dt)
 		double thisFrame = glfwGetTime();
 		float dt = static_cast<float>(thisFrame - lastFrame);
+		float Speed = 3.0f;
 
 		// We need to poll our key watchers so they can do their logic with the GLFW state
 		tKeyWatcher.Poll(window);
@@ -679,14 +690,31 @@ int main() {
 		
 
 		//transform2 = glm::translate(transform2, moveDir * ballSpeed * dt);
-		transform2 = glm::translate(transform2, moveDir * dt);
-		ballEntity.transform.m_pos.y += moveDir.y * dt;
+		transform2 = glm::translate(transform2, moveDir * Speed * dt);
+		ballEntity.transform.m_pos.y += moveDir.y * Speed * dt;
+		ballEntity.transform.m_pos.x += moveDir.x * Speed * dt;
 		
 		// Checks balls distance to paddle height
 		if (ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f) && (ballEntity.transform.m_pos.x >= (paddleEntity.transform.m_pos.x) - 2 && (ballEntity.transform.m_pos.x <= (paddleEntity.transform.m_pos.x + 2))))
 		{
-			moveDir = moveDir * (-1.0f);
+			moveDir.y = moveDir.y * (-1.0f);
 		}
+
+
+
+		// Checks balls distance to Left Wall
+		if (ballEntity.transform.m_pos.x >= 15.0f || ballEntity.transform.m_pos.x <= -15.0f)
+		{
+			
+			moveDir.x = moveDir.x * (-1.0f);
+		}
+		if ( ballEntity.transform.m_pos.y >= 10.0f || ballEntity.transform.m_pos.y <= -16.0f)
+		{
+
+			moveDir.y = moveDir.y * (-1.0f);
+		}
+
+
 		/*else if (ballEntity.transform.m_pos.y >= 9.5f)
 		{
 			ballEntity.transform.m_pos.x = 0.0f;
@@ -716,7 +744,7 @@ int main() {
 		createBricks(shader, brickVAO, brickTransform);
 
 		
-		checkCollision(ballEntity, paddleEntity, 10.0f, 2.0f);
+		checkCollision(ballEntity, BrickEntity, 1.0f, 0.5f);
 
 		RenderImGui();
 
