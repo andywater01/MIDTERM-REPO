@@ -631,7 +631,7 @@ int main() {
 		// Calculate the time since our last frame (dt)
 		double thisFrame = glfwGetTime();
 		float dt = static_cast<float>(thisFrame - lastFrame);
-		float Speed = 3.0f;
+		float Speed = 4.5f;
 
 		// We need to poll our key watchers so they can do their logic with the GLFW state
 		tKeyWatcher.Poll(window);
@@ -702,18 +702,20 @@ int main() {
 
 
 
-		// Checks balls distance to Left Wall
+		// Checks balls distance to Walls
 		if (ballEntity.transform.m_pos.x >= 15.0f || ballEntity.transform.m_pos.x <= -15.0f)
 		{
 			
 			moveDir.x = moveDir.x * (-1.0f);
 		}
-		if ( ballEntity.transform.m_pos.y >= 10.0f || ballEntity.transform.m_pos.y <= -16.0f)
+		if (ballEntity.transform.m_pos.y >= 10.0f || ballEntity.transform.m_pos.y <= -16.0f)
 		{
 
 			moveDir.y = moveDir.y * (-1.0f);
 		}
 
+		//Sets Paddle Boundaries
+		
 
 		/*else if (ballEntity.transform.m_pos.y >= 9.5f)
 		{
