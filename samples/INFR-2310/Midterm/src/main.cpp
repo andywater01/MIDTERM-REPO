@@ -250,8 +250,12 @@ void checkCollision(Entity &ball, Entity &gameObject, float length, float width)
 	if ((ball.transform.m_pos.x >= gameObject.transform.m_pos.x - length && ball.transform.m_pos.x <= gameObject.transform.m_pos.x + length) 
 		&& (ball.transform.m_pos.y <= gameObject.transform.m_pos.y - width && ball.transform.m_pos.y >= gameObject.transform.m_pos.y + width))
 	{
-		std::cout << "Hit!" << std::endl;
+		printf("HIT!");
 	}
+	/*if (ball.transform.m_pos.y <= 9.5)
+	{
+		std::cout << (ball.transform.m_pos.y) << std::endl;
+	}*/
 }
 
 int main() {
@@ -623,9 +627,11 @@ int main() {
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 10.0f) * dt);
+			paddleEntity.transform.m_pos.x += (0.0f, 0.0f, 10.0f) * dt;
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -10.0f) * dt);
+			paddleEntity.transform.m_pos.x += (0.0f, 0.0f, -10.0f) * dt;
 			//brickTransform[2] = glm::translate(brickTransform[2], glm::vec3(0.0f, 0.0f, -10.0f) * dt);
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
@@ -663,17 +669,24 @@ int main() {
 		//shader->SetUniformMatrix("u_View", camera->GetView());
 		shader->SetUniform("u_CamPos", camera->GetPosition());
 
-		
+		//paddleEntity.transform.RecomputeGlobal();
 		// These uniforms update for every object we want to draw
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform);
 		shader->SetUniformMatrix("u_Model", transform);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform));
 		paddleVAO->Render();
 
-
+		
 
 		//transform2 = glm::translate(transform2, moveDir * ballSpeed * dt);
 		transform2 = glm::translate(transform2, moveDir * dt);
+		ballEntity.transform.m_pos.y += moveDir.y * dt;
+		
+		// Checks balls distance to paddle height
+		if (ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.x >= (paddleEntity.transform.m_pos.x) - 2 && (ballEntity.transform.m_pos.x <= (paddleEntity.transform.m_pos.x + 2))))
+		{
+			moveDir = moveDir * (-1.0f);
+		}
 
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
 		shader->SetUniformMatrix("u_Model", transform2);
@@ -694,6 +707,7 @@ int main() {
 		
 		createBricks(shader, brickVAO, brickTransform);
 
+		
 		checkCollision(ballEntity, paddleEntity, 10.0f, 2.0f);
 
 		RenderImGui();
