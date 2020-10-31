@@ -442,6 +442,31 @@ int main() {
 		});
 	
 
+	//boarder.obj
+	std::vector<glm::vec3> positions_boarder;
+	std::vector<glm::vec3> normals_boarder;
+	std::vector<glm::vec2> uvs_boarder;
+
+	VertexArrayObject::sptr boarderVAO = nullptr;
+	bool boarder_loader = ObjLoader::LoadFromFile("Boarder.obj", positions_boarder, uvs_boarder, normals_boarder);
+
+	boarderVAO = VertexArrayObject::Create();
+	VertexBuffer::sptr boarder_vertices = VertexBuffer::Create();
+	boarder_vertices->LoadData(positions_boarder.data(), positions_boarder.size());
+
+	VertexBuffer::sptr boarder_normals = VertexBuffer::Create();
+	boarder_normals->LoadData(normals_boarder.data(), normals_boarder.size());
+
+	boarderVAO = VertexArrayObject::Create();
+
+	boarderVAO->AddVertexBuffer(boarder_vertices, {
+		BufferAttribute(0, 3, GL_FLOAT, false, 0, NULL)
+		});
+	boarderVAO->AddVertexBuffer(boarder_normals, {
+		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
+		});
+
+
 
 	// Load our shaders
 	Shader::sptr shader = Shader::Create();
@@ -508,7 +533,7 @@ int main() {
 	glm::mat4 transform = glm::mat4(1.0f);
 	glm::mat4 transform2 = glm::mat4(1.0f);
 	glm::mat4 transform3 = glm::mat4(1.0f);
-	glm::mat4 transform4 = glm::mat4(1.2f);
+	glm::mat4 transform4 = glm::mat4(1.0f);
 
 	std::vector <glm::mat4> brickTransform;
 
@@ -550,6 +575,10 @@ int main() {
 
 	transform3 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
 	transform3 = glm::translate(transform3, glm::vec3(3.0f, -9.0f, 0.0f));
+
+	transform4 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
+	transform4 = glm::scale(transform4, glm::vec3(0.1f, 0.54f, 0.53f));
+	transform4 = glm::translate(transform4, glm::vec3(0.0f, -6.5f, 0.0f));
 
 	//brickTransform[4] = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, 0.0f, 0.0f));
 
@@ -638,13 +667,20 @@ int main() {
 		tKeyWatcher.Poll(window);
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 10.0f) * dt);
-			paddleEntity.transform.m_pos.x += (0.0f, 0.0f, 10.0f) * dt;
+			if (paddleEntity.transform.m_pos.x + 1.8 < 15.5f)
+			{
+				transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 10.0f) * dt);
+				paddleEntity.transform.m_pos.x += (0.0f, 0.0f, 10.0f) * dt;
+			}
+			
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -10.0f) * dt);
-			paddleEntity.transform.m_pos.x += (0.0f, 0.0f, -10.0f) * dt;
-			//brickTransform[2] = glm::translate(brickTransform[2], glm::vec3(0.0f, 0.0f, -10.0f) * dt);
+			if (paddleEntity.transform.m_pos.x - 1.8 > -15.5f)
+			{
+				transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -10.0f) * dt);
+				paddleEntity.transform.m_pos.x += (0.0f, 0.0f, -10.0f) * dt;
+			}
+			
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
 		{
@@ -716,12 +752,12 @@ int main() {
 		}
 
 		// Checks balls distance to Walls
-		if (ballEntity.transform.m_pos.x >= 15.0f || ballEntity.transform.m_pos.x <= -15.0f)
+		if (ballEntity.transform.m_pos.x >= 15.5f || ballEntity.transform.m_pos.x <= -15.5f)
 		{
 			
 			moveDir.x = moveDir.x * (-1.0f);
 		}
-		if (ballEntity.transform.m_pos.y >= 10.0f || ballEntity.transform.m_pos.y <= -16.0f)
+		if (ballEntity.transform.m_pos.y >= 10.0f || ballEntity.transform.m_pos.y <= -17.0f)
 		{
 
 			moveDir.y = moveDir.y * (-1.0f);
@@ -730,14 +766,7 @@ int main() {
 		//Sets Paddle Boundaries
 		
 
-		/*else if (ballEntity.transform.m_pos.y >= 9.5f)
-		{
-			ballEntity.transform.m_pos.x = 0.0f;
-			ballEntity.transform.m_pos.y = -10.0f;
-			ballEntity.transform.m_pos.z = 0.0f;
-			transform2 = glm::translate(transform2, glm::vec3(ballEntity.transform.m_pos.x, ballEntity.transform.m_pos.y, ballEntity.transform.m_pos.z));
-			
-		}*/
+
 
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
 		shader->SetUniformMatrix("u_Model", transform2);
@@ -745,16 +774,13 @@ int main() {
 		//ballMovement(transform2, dt);
 		ballVAO->Render();
 		
+		//boarder
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform4);
+		shader->SetUniformMatrix("u_Model", transform4);
+		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform4));
+		boarderVAO->Render();
 
-		//shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
-		//shader->SetUniformMatrix("u_Model", transform3);
-		//shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
-		//brickVAO->Render();
 
-		//shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * brickTransform[1]);
-		//shader->SetUniformMatrix("u_Model", brickTransform[1]);
-		//shader->SetUniformMatrix("u_ModelRotation", glm::mat3(brickTransform[1]));
-		//brickVAO->Render();
 		
 		createBricks(shader, brickVAO, brickTransform);
 
