@@ -215,6 +215,21 @@ void createBricks(Shader::sptr shader, VertexArrayObject::sptr VAO, std::vector 
 		shader->SetUniformMatrix("u_Model", transform[i]);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform[i]));
 		VAO->Render();
+
+	}
+}
+
+void BrickCollide(std::vector <glm::mat4> transform, Entity entity[54], Entity ball)
+{
+	for (int i = 0; i < 54; i++)
+	{
+		//transform = entity[i].transform.RecomputeGlobal();
+		if (ball.transform.m_pos.y <= entity[i].transform.m_pos.y + 1 && ball.transform.m_pos.y >= entity[i].transform.m_pos.y - 1 && ball.transform.m_pos.x >= entity[i].transform.m_pos.x + 1 && ball.transform.m_pos.x <= entity[i].transform.m_pos.x -1)
+		{
+			// change ball direction
+			// destroy brick
+		}
+		
 	}
 }
 
