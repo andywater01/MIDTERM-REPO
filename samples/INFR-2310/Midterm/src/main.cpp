@@ -253,6 +253,7 @@ void checkCollision(Entity &ball, Entity &gameObject, float length, float width)
 			&& (ball.transform.m_pos.y <= gameObject.transform.m_pos.y - width && ball.transform.m_pos.y >= gameObject.transform.m_pos.y + width)))
 		{
 			printf("HIT!");
+			
 		}
 	}
 	
@@ -695,12 +696,24 @@ int main() {
 		ballEntity.transform.m_pos.x += moveDir.x * Speed * dt;
 		
 		// Checks balls distance to paddle height
-		if (ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f) && (ballEntity.transform.m_pos.x >= (paddleEntity.transform.m_pos.x) - 2 && (ballEntity.transform.m_pos.x <= (paddleEntity.transform.m_pos.x + 2))))
+		/*if (ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f) && (ballEntity.transform.m_pos.x >= (paddleEntity.transform.m_pos.x) - 2 && (ballEntity.transform.m_pos.x <= (paddleEntity.transform.m_pos.x + 2))))
+		{
+			//delete &ballEntity;
+			
+			moveDir.y = moveDir.y * (-1.0f);
+		}*/
+
+		if (ballEntity.transform.m_pos.x <= paddleEntity.transform.m_pos.x + 2 && ballEntity.transform.m_pos.x > paddleEntity.transform.m_pos.x && ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f))
 		{
 			moveDir.y = moveDir.y * (-1.0f);
+			moveDir.x = (1.0f);
 		}
 
-
+		if (ballEntity.transform.m_pos.x >= paddleEntity.transform.m_pos.x - 2 && ballEntity.transform.m_pos.x <= paddleEntity.transform.m_pos.x && ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f))
+		{
+			moveDir.y = moveDir.y * (-1.0f);
+			moveDir.x = (-1.0f);
+		}
 
 		// Checks balls distance to Walls
 		if (ballEntity.transform.m_pos.x >= 15.0f || ballEntity.transform.m_pos.x <= -15.0f)
