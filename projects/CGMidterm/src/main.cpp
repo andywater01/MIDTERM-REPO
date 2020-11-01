@@ -443,21 +443,20 @@ int main() {
 	borderTransform->SetLocalPosition(-0.14f, 0.0f, 0.4f)->SetLocalRotation(0.0f, 0.0f, 90.0f)->SetLocalScale(0.05f, 0.18f, 0.15f);
 
 	//Ball Variables
-	float ballSpeed = 1.0f;
+	float ballSpeed = 2.0f;
 	glm::vec3 moveDir = glm::vec3(-1.0f, 0.0f, -1.0f);
-	glm::vec3 ballPos = glm::vec3();
 
 	int brickCounter = 0;
 	float xMove = 0.0f;
-	float yMove = 0.6f;
+	float yMove = 0.5f;
 
 	for (int y = 0; y < 6; y++)
 	{
-		yMove -= 0.6f;
+		yMove -= 0.5f;
 		for (int x = 0; x < 9; x++)
 		{
-			brickTransform[brickCounter]->SetLocalPosition(3.9f + xMove, 0.0f, 4.2f + yMove)->SetLocalRotation(0.0f, 90.0f, 0.0f)->SetLocalScale(0.3f, 0.5f, 0.4f);
-			xMove += -1.0f;
+			brickTransform[brickCounter]->SetLocalPosition(3.65f + xMove, 0.0f, 4.2f + yMove)->SetLocalRotation(0.0f, 90.0f, 0.0f)->SetLocalScale(0.3f, 0.5f, 0.4f);
+			xMove += -0.95f;
 			brickCounter++;
 		}
 		xMove = 0.0f;
@@ -650,6 +649,8 @@ int main() {
 
 		RenderVAO(shader, borderVao, camera, borderTransform);
 
+		
+
 		for (int i = 0; i < 54; i++)
 		{
 			RenderVAO(shader, brickVao, camera, brickTransform[i]);
@@ -674,14 +675,14 @@ int main() {
 		*/
 
 		//Collisions with Ball and Paddle
-		if (ballTransform->GetLocalPosition().x <= paddleTransform->GetLocalPosition().x + 1.0f && ballTransform->GetLocalPosition().x >
+		if (ballTransform->GetLocalPosition().x <= paddleTransform->GetLocalPosition().x + 0.95f && ballTransform->GetLocalPosition().x >
 			paddleTransform->GetLocalPosition().x && ballTransform->GetLocalPosition().z >= (paddleTransform->GetLocalPosition().z - 0.2f) &&
 			(ballTransform->GetLocalPosition().z <= paddleTransform->GetLocalPosition().z + 0.2f))
 		{
 			moveDir.z = moveDir.z * (-1.0f);
 			moveDir.x = (1.0f);
 		}
-		if (ballTransform->GetLocalPosition().x >= paddleTransform->GetLocalPosition().x - 1.0f && ballTransform->GetLocalPosition().x <=
+		if (ballTransform->GetLocalPosition().x >= paddleTransform->GetLocalPosition().x - 0.95f && ballTransform->GetLocalPosition().x <=
 			paddleTransform->GetLocalPosition().x && ballTransform->GetLocalPosition().z >= (paddleTransform->GetLocalPosition().z - 0.2f) &&
 			(ballTransform->GetLocalPosition().z <= paddleTransform->GetLocalPosition().z + 0.2f))
 		{
@@ -690,7 +691,17 @@ int main() {
 		}
 
 
-		
+		for (int i = 0; i < 54; i++)
+		{
+			if (ballTransform->GetLocalPosition().x - 0.1f < brickTransform[i]->GetLocalPosition().x + 0.35f &&
+				ballTransform->GetLocalPosition().x + 0.1f >= brickTransform[i]->GetLocalPosition().x - 0.35f &&
+				ballTransform->GetLocalPosition().z - 0.1f < brickTransform[i]->GetLocalPosition().z + 0.1f &&
+				ballTransform->GetLocalPosition().z + 0.1f >= brickTransform[i]->GetLocalPosition().z - 0.1f)
+			{
+				moveDir.z = moveDir.z * (-1.0f);
+				brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+			}
+		}
 
 
 
