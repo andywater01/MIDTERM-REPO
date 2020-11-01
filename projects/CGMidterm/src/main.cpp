@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <json.hpp>
 #include <fstream>
+#include <string>
 
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
@@ -71,9 +72,15 @@ Camera::sptr camera = nullptr;
 
 bool perspective = true;
 bool isPressed = false;
+int lives = 3;
 int BrickHealth[54];
 int brickHits[54];
 bool isHit = false;
+int firstDigitScore = 0;
+int secondDigitScore = 0;
+std::string currentFirstScore = "number" + std::to_string(firstDigitScore) + "Vao";
+std::string currentSecondScore = "number" + std::to_string(secondDigitScore) + "Vao";
+
 
 
 void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
@@ -310,6 +317,31 @@ int main() {
 
 	VertexArrayObject::sptr borderVao = ObjLoader::LoadFromFile("models/Border.obj");
 
+	VertexArrayObject::sptr number0Vao = ObjLoader::LoadFromFile("models/0.obj");
+
+	VertexArrayObject::sptr number1Vao = ObjLoader::LoadFromFile("models/1.obj");
+
+	VertexArrayObject::sptr number2Vao = ObjLoader::LoadFromFile("models/2.obj");
+
+	VertexArrayObject::sptr number3Vao = ObjLoader::LoadFromFile("models/3.obj");
+
+	VertexArrayObject::sptr number4Vao = ObjLoader::LoadFromFile("models/4.obj");
+
+	VertexArrayObject::sptr number5Vao = ObjLoader::LoadFromFile("models/5.obj");
+
+	VertexArrayObject::sptr number6Vao = ObjLoader::LoadFromFile("models/6.obj");
+
+	VertexArrayObject::sptr number7Vao = ObjLoader::LoadFromFile("models/7.obj");
+
+	VertexArrayObject::sptr number8Vao = ObjLoader::LoadFromFile("models/8.obj");
+
+	VertexArrayObject::sptr number9Vao = ObjLoader::LoadFromFile("models/9.obj");
+
+	VertexArrayObject::sptr winVao = ObjLoader::LoadFromFile("models/Win.obj");
+
+	VertexArrayObject::sptr loseVao = ObjLoader::LoadFromFile("models/Lose.obj");
+
+
 	static const VertexPosCol interleaved[] = {
     //     X      Y     Z       R     G    B
 		{{ 0.5f, -0.5f, 0.0f},   {0.0f, 0.0f, 0.0f, 1.0f}},
@@ -423,12 +455,22 @@ int main() {
 	Transform::sptr transforms[4];
 	Transform::sptr paddleTransform;
 	Transform::sptr ballTransform;
+	Transform::sptr ball2Transform;
+	Transform::sptr ball3Transform;
+	Transform::sptr ball4Transform;
 	Transform::sptr borderTransform;
 	Transform::sptr brickTransform[54];
+	Transform::sptr firstDigitTransform;
+	Transform::sptr secondDigitTransform;
 
 	paddleTransform = Transform::Create();
 	ballTransform = Transform::Create();
+	ball2Transform = Transform::Create();
+	ball3Transform = Transform::Create();
+	ball4Transform = Transform::Create();
 	borderTransform = Transform::Create();
+	firstDigitTransform = Transform::Create();
+	secondDigitTransform = Transform::Create();
 
 	for (int i = 0; i < 54; i++)
 	{
@@ -450,7 +492,12 @@ int main() {
 	// We can use operator chaining, since our Set* methods return a pointer to the instance, neat!
 	paddleTransform->SetLocalPosition(0.0f, 0.0f, -4.0f)->SetLocalRotation(0.0f, 90.0f, 0.0f)->SetLocalScale(0.2f,0.5f, 0.3f);
 	ballTransform->SetLocalPosition(0.0f, 0.0f, -2.0f)->SetLocalScale(0.3f, 0.3f, 0.3f);
+	ball2Transform->SetLocalPosition(-4.0f, 0.0f, -5.5f)->SetLocalScale(0.3f, 0.3f, 0.3f);
+	ball3Transform->SetLocalPosition(-4.4f, 0.0f, -5.5f)->SetLocalScale(0.3f, 0.3f, 0.3f);
+	ball4Transform->SetLocalPosition(-4.8f, 0.0f, -5.5f)->SetLocalScale(0.3f, 0.3f, 0.3f);
 	borderTransform->SetLocalPosition(-0.14f, 0.0f, 0.4f)->SetLocalRotation(0.0f, 0.0f, 90.0f)->SetLocalScale(0.05f, 0.18f, 0.15f);
+	firstDigitTransform->SetLocalPosition(4.0f, 0.0f, -5.5f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(1.0f, 1.0f, 1.0f);
+	secondDigitTransform->SetLocalPosition(4.4f, 0.0f, -5.5f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(1.0f, 1.0f, 1.0f);
 
 	//Ball Variables
 	float ballSpeed = 2.0f;
@@ -715,11 +762,118 @@ int main() {
 
 		RenderVAO(shader, paddleVao, camera, paddleTransform);
 
+
+		if (firstDigitScore == 0)
+		{
+			RenderVAO(shader, number0Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 1)
+		{
+			RenderVAO(shader, number1Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 2)
+		{
+			RenderVAO(shader, number2Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 3)
+		{
+			RenderVAO(shader, number3Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 4)
+		{
+			RenderVAO(shader, number4Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 5)
+		{
+			RenderVAO(shader, number5Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 6)
+		{
+			RenderVAO(shader, number6Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 7)
+		{
+			RenderVAO(shader, number7Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 8)
+		{
+			RenderVAO(shader, number8Vao, camera, firstDigitTransform);
+		}
+		else if (firstDigitScore == 9)
+		{
+			RenderVAO(shader, number9Vao, camera, firstDigitTransform);
+		}
+
+		if (secondDigitScore == 0)
+		{
+			RenderVAO(shader, number0Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 1)
+		{
+			RenderVAO(shader, number1Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 2)
+		{
+			RenderVAO(shader, number2Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 3)
+		{
+			RenderVAO(shader, number3Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 4)
+		{
+			RenderVAO(shader, number4Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 5)
+		{
+			RenderVAO(shader, number5Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 6)
+		{
+			RenderVAO(shader, number6Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 7)
+		{
+			RenderVAO(shader, number7Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 8)
+		{
+			RenderVAO(shader, number8Vao, camera, secondDigitTransform);
+		}
+		else if (secondDigitScore == 9)
+		{
+			RenderVAO(shader, number9Vao, camera, secondDigitTransform);
+		}
+
+
 		ballMaterial.Albedo->Bind(0);
 		ballMaterial.Specular->Bind(1);
 		shader->SetUniform("u_Shininess", ballMaterial.Shininess);
 
 		RenderVAO(shader, ballVao, camera, ballTransform);
+
+
+		if (lives == 3)
+		{
+			RenderVAO(shader, ballVao, camera, ball2Transform);
+			RenderVAO(shader, ballVao, camera, ball3Transform);
+			RenderVAO(shader, ballVao, camera, ball4Transform);
+		}
+		else if (lives == 2)
+		{
+			RenderVAO(shader, ballVao, camera, ball2Transform);
+			RenderVAO(shader, ballVao, camera, ball3Transform);
+		}
+		else if (lives == 1)
+		{
+			RenderVAO(shader, ballVao, camera, ball2Transform);
+		}
+		else
+		{
+			//Nothing
+		}
+
+
 
 		boundaryMaterial.Albedo->Bind(0);
 		boundaryMaterial.Specular->Bind(1);
@@ -785,7 +939,7 @@ int main() {
 		}
 
 		
-
+		//Collision with Bricks
 		for (int i = 0; i < 54; i++)
 		{
 			if (ballTransform->GetLocalPosition().x - 0.1f < brickTransform[i]->GetLocalPosition().x + 0.34f &&
@@ -822,6 +976,13 @@ int main() {
 					{
 						moveDir.z = moveDir.z * (-1.0f);
 						brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+						firstDigitScore++;
+
+						if (firstDigitScore == 10)
+						{
+							firstDigitScore = 0;
+							secondDigitScore++;
+						}
 					}
 					else
 					{
@@ -863,10 +1024,12 @@ int main() {
 		{
 			moveDir.z = moveDir.z * (-1.0f);
 		}
-		else if (ballTransform->GetLocalPosition().z <= -4.0f)
+		if (ballTransform->GetLocalPosition().z <= -4.0f)
 		{
 			ballTransform->SetLocalPosition(0.0f, 0.0f, 0.0f);
+
 			// Lose life
+			lives--;
 		}
 
 
@@ -885,6 +1048,7 @@ int main() {
 		//std::cout << "Y: " << ballTransform->GetLocalPosition().y << std::endl;
 		//std::cout << "Z: " << ballTransform->GetLocalPosition().z << std::endl;
 
+		//std::cout << currentScore << std::endl;
 
 		RenderImGui();
 
