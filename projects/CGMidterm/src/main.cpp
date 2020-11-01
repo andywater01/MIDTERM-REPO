@@ -70,6 +70,9 @@ Camera::sptr camera = nullptr;
 
 bool perspective = true;
 bool isPressed = false;
+int BrickHealth[54];
+int brickHits[54];
+bool isHit = false;
 
 void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -252,12 +255,13 @@ void PaddleInput(const Transform::sptr& transform, float dt) {
 		}
 		
 	}
-	/*if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		transform->MoveLocal(-1.0f * dt, 0.0f, 0.0f);
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		transform->MoveLocal(1.0f * dt, 0.0f, 0.0f);
 	}
+	/*
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		transform->MoveLocal(0.0f, 0.0f, 1.0f * dt);
 	}
@@ -425,6 +429,8 @@ int main() {
 	for (int i = 0; i < 54; i++)
 	{
 		brickTransform[i] = Transform::Create();
+
+		brickHits[i] = 0;
 	}
 
 	transforms[0] = Transform::Create();
@@ -457,6 +463,16 @@ int main() {
 		{
 			brickTransform[brickCounter]->SetLocalPosition(3.65f + xMove, 0.0f, 4.2f + yMove)->SetLocalRotation(0.0f, 90.0f, 0.0f)->SetLocalScale(0.3f, 0.5f, 0.4f);
 			xMove += -0.95f;
+
+			if (brickTransform[brickCounter]->GetLocalPosition().z >= 3.4f)
+			{
+				BrickHealth[brickCounter] = 2;
+			}
+			else
+			{
+				BrickHealth[brickCounter] = 1;
+			}
+
 			brickCounter++;
 		}
 		xMove = 0.0f;
@@ -480,6 +496,12 @@ int main() {
 	Texture2DData::sptr diffuseMap2 = Texture2DData::LoadFromFile("images/box.bmp");
 	Texture2DData::sptr specularMap = Texture2DData::LoadFromFile("images/Stone_001_Specular.png");
 
+	Texture2DData::sptr paddleMap = Texture2DData::LoadFromFile("images/RedPaddle.png");
+	Texture2DData::sptr ballMap = Texture2DData::LoadFromFile("images/BallColour.png");
+	Texture2DData::sptr baseBrickMap = Texture2DData::LoadFromFile("images/GreenBrick.png");
+	Texture2DData::sptr hitBrickMap = Texture2DData::LoadFromFile("images/YellowBrick.png");
+	Texture2DData::sptr boundaryMap = Texture2DData::LoadFromFile("images/BoundaryColour.png");
+
 	// Create a texture from the data
 	Texture2D::sptr diffuse = Texture2D::Create();
 	diffuse->LoadData(diffuseMap);
@@ -490,6 +512,21 @@ int main() {
 
 	Texture2D::sptr specular = Texture2D::Create();
 	specular->LoadData(specularMap);
+
+	Texture2D::sptr paddleDiffuse = Texture2D::Create();
+	paddleDiffuse->LoadData(paddleMap);
+
+	Texture2D::sptr ballDiffuse = Texture2D::Create();
+	ballDiffuse->LoadData(ballMap);
+
+	Texture2D::sptr baseBrickDiffuse = Texture2D::Create();
+	baseBrickDiffuse->LoadData(baseBrickMap);
+
+	Texture2D::sptr boundaryDiffuse = Texture2D::Create();
+	boundaryDiffuse->LoadData(boundaryMap);
+
+	Texture2D::sptr hitBrickDiffuse = Texture2D::Create();
+	hitBrickDiffuse->LoadData(hitBrickMap);
 
 	// Creating an empty texture
 	Texture2DDescription desc = Texture2DDescription();
@@ -504,6 +541,32 @@ int main() {
 
 	// We'll use a temporary lil structure to store some info about our material (we'll expand this later)
 	Material materials[4];
+	Material paddleMaterial;
+	Material ballMaterial;
+	Material baseBrickMaterial;
+	Material hitBrickMaterial;
+	Material boundaryMaterial;
+
+	paddleMaterial.Albedo = paddleDiffuse;
+	paddleMaterial.Specular = specular;
+	paddleMaterial.Shininess = 16.0f;
+
+	ballMaterial.Albedo = ballDiffuse;
+	ballMaterial.Specular = specular;
+	ballMaterial.Shininess = 16.0f;
+
+	baseBrickMaterial.Albedo = baseBrickDiffuse;
+	baseBrickMaterial.Specular = specular;
+	baseBrickMaterial.Shininess = 16.0f;
+
+	hitBrickMaterial.Albedo = hitBrickDiffuse;
+	hitBrickMaterial.Specular = specular;
+	hitBrickMaterial.Shininess = 16.0f;
+
+	boundaryMaterial.Albedo = boundaryDiffuse;
+	boundaryMaterial.Specular = specular;
+	boundaryMaterial.Shininess = 16.0f;
+	
 	materials[0].Albedo    = diffuse;
 	materials[0].NewTexture = diffuse2;
 	materials[0].Specular  = specular;
@@ -629,10 +692,10 @@ int main() {
 		}
 		*/
 
-		materials[0].Albedo->Bind(0);
-		materials[0].Specular->Bind(1);
-		materials[0].NewTexture->Bind(2);
-		shader->SetUniform("u_Shininess", materials[0].Shininess);
+		//materials[0].Albedo->Bind(0);
+		//materials[0].Specular->Bind(1);
+		//materials[0].NewTexture->Bind(2);
+		//shader->SetUniform("u_Shininess", materials[0].Shininess);
 
 
 		ballTransform->MoveLocal(moveDir * ballSpeed * dt);
@@ -642,18 +705,45 @@ int main() {
 		//ballEntity.transform.m_pos.x += moveDir.x * Speed * dt;
 
 
+		paddleMaterial.Albedo->Bind(0);
+		paddleMaterial.Specular->Bind(1);
+		shader->SetUniform("u_Shininess", paddleMaterial.Shininess);
 
 		RenderVAO(shader, paddleVao, camera, paddleTransform);
 
+		ballMaterial.Albedo->Bind(0);
+		ballMaterial.Specular->Bind(1);
+		shader->SetUniform("u_Shininess", ballMaterial.Shininess);
+
 		RenderVAO(shader, ballVao, camera, ballTransform);
+
+		boundaryMaterial.Albedo->Bind(0);
+		boundaryMaterial.Specular->Bind(1);
+		shader->SetUniform("u_Shininess", boundaryMaterial.Shininess);
 
 		RenderVAO(shader, borderVao, camera, borderTransform);
 
 		
 
+
 		for (int i = 0; i < 54; i++)
 		{
-			RenderVAO(shader, brickVao, camera, brickTransform[i]);
+			if (BrickHealth[i] == 2)
+			{
+				baseBrickMaterial.Albedo->Bind(0);
+				baseBrickMaterial.Specular->Bind(1);
+				shader->SetUniform("u_Shininess", baseBrickMaterial.Shininess);
+
+				RenderVAO(shader, brickVao, camera, brickTransform[i]);
+			}
+			else if (BrickHealth[i] < 2)
+			{
+				hitBrickMaterial.Albedo->Bind(0);
+				hitBrickMaterial.Specular->Bind(1);
+				shader->SetUniform("u_Shininess", hitBrickMaterial.Shininess);
+
+				RenderVAO(shader, brickVao, camera, brickTransform[i]);
+			}
 		}
 
 		/*
@@ -690,17 +780,69 @@ int main() {
 			moveDir.x = (-1.0f);
 		}
 
+		
 
 		for (int i = 0; i < 54; i++)
 		{
-			if (ballTransform->GetLocalPosition().x - 0.1f < brickTransform[i]->GetLocalPosition().x + 0.35f &&
-				ballTransform->GetLocalPosition().x + 0.1f >= brickTransform[i]->GetLocalPosition().x - 0.35f &&
-				ballTransform->GetLocalPosition().z - 0.1f < brickTransform[i]->GetLocalPosition().z + 0.1f &&
+			if (ballTransform->GetLocalPosition().x - 0.1f < brickTransform[i]->GetLocalPosition().x + 0.34f &&
+				ballTransform->GetLocalPosition().x + 0.1f >= brickTransform[i]->GetLocalPosition().x - 0.44f &&
+				ballTransform->GetLocalPosition().z - 0.1f < brickTransform[i]->GetLocalPosition().z + 0.2f &&
 				ballTransform->GetLocalPosition().z + 0.1f >= brickTransform[i]->GetLocalPosition().z - 0.1f)
 			{
-				moveDir.z = moveDir.z * (-1.0f);
-				brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+				isHit = true;
+
+
+				//Check Move Direction to see if positive or negative on the z axis and decide whehter or not to send the ball up/down/left/right
+				if (isHit == true)
+				{
+					/*
+					if (ballTransform->GetLocalPosition().x - 0.1f < brickTransform[i]->GetLocalPosition().x + 0.34f &&
+						ballTransform->GetLocalPosition().z - 0.1f < brickTransform[i]->GetLocalPosition().z + 0.2f &&
+						ballTransform->GetLocalPosition().z + 0.1f >= brickTransform[i]->GetLocalPosition().z - 0.1f)
+					{
+						moveDir.x = moveDir.x * (-1.0f);
+					}
+
+					if (ballTransform->GetLocalPosition().x + 0.1f > brickTransform[i]->GetLocalPosition().x - 0.44f &&
+						ballTransform->GetLocalPosition().z - 0.1f < brickTransform[i]->GetLocalPosition().z + 0.2f &&
+						ballTransform->GetLocalPosition().z + 0.1f >= brickTransform[i]->GetLocalPosition().z - 0.1f)
+					{
+						moveDir.x = moveDir.x * (-1.0f);
+					}
+					*/
+
+					BrickHealth[i] --;
+
+
+					if (BrickHealth[i] == 0)
+					{
+						moveDir.z = moveDir.z * (-1.0f);
+						brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+					}
+					else
+					{
+						moveDir.z = moveDir.z * (-1.0f);
+					}
+					isHit = false;
+				}
+				
+
+
+
+				//moveDir.z = moveDir.z * (-1.0f);
+				//brickHits[i]++;
+
+				//if (brickHits[i] == 2)
+				//{
+					//brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+
+				//}
+
+				//moveDir.z = moveDir.z * (-1.0f);
+				//brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
 			}
+			
+
 		}
 
 
