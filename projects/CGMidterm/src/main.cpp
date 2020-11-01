@@ -1,5 +1,6 @@
 #include <Logging.h>
 #include <iostream>
+#include <string>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -70,6 +71,8 @@ Camera::sptr camera = nullptr;
 
 bool perspective = true;
 bool isPressed = false;
+int BrickHealth[54];
+
 
 void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -293,6 +296,8 @@ int main() {
 
 	// Enable texturing
 	glEnable(GL_TEXTURE_2D);
+
+	 
 	
 	VertexArrayObject::sptr paddleVao = ObjLoader::LoadFromFile("models/Paddle.obj");
 
@@ -425,6 +430,14 @@ int main() {
 	for (int i = 0; i < 54; i++)
 	{
 		brickTransform[i] = Transform::Create();
+		/*if (brickTransform[i]->GetLocalPosition().y >= 0.7f)
+		{
+			BrickHealth[i] = 2;
+		}
+		else
+		{
+			BrickHealth[i] = 1;
+		}*/
 	}
 
 	transforms[0] = Transform::Create();
@@ -698,8 +711,19 @@ int main() {
 				ballTransform->GetLocalPosition().z - 0.1f < brickTransform[i]->GetLocalPosition().z + 0.1f &&
 				ballTransform->GetLocalPosition().z + 0.1f >= brickTransform[i]->GetLocalPosition().z - 0.1f)
 			{
-				moveDir.z = moveDir.z * (-1.0f);
-				brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+				
+				BrickHealth[i] --;
+				if (BrickHealth[i] <= 0)
+				{
+					moveDir.z = moveDir.z * (-1.0f);
+					brickTransform[i]->SetLocalPosition(1000.f, 0.0f, 0.0f);
+					
+				}
+				else
+				{
+					moveDir.z = moveDir.z * (-1.0f);
+				}
+				
 			}
 		}
 
