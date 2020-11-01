@@ -270,6 +270,11 @@ void PaddleInput(const Transform::sptr& transform, float dt) {
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		transform->MoveLocal(1.0f * dt, 0.0f, 0.0f);
 	}
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+	{
+		firstDigitScore = 4;
+		secondDigitScore = 5;
+	}
 	/*
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		transform->MoveLocal(0.0f, 0.0f, 1.0f * dt);
@@ -337,9 +342,9 @@ int main() {
 
 	VertexArrayObject::sptr number9Vao = ObjLoader::LoadFromFile("models/9.obj");
 
-	VertexArrayObject::sptr winVao = ObjLoader::LoadFromFile("models/Win.obj");
+	VertexArrayObject::sptr winVao = ObjLoader::LoadFromFile("models/You Won.obj");
 
-	VertexArrayObject::sptr loseVao = ObjLoader::LoadFromFile("models/Lose.obj");
+	VertexArrayObject::sptr loseVao = ObjLoader::LoadFromFile("models/Game Over.obj");
 
 
 	static const VertexPosCol interleaved[] = {
@@ -462,6 +467,8 @@ int main() {
 	Transform::sptr brickTransform[54];
 	Transform::sptr firstDigitTransform;
 	Transform::sptr secondDigitTransform;
+	Transform::sptr winTransform;
+	Transform::sptr loseTransform;
 
 	paddleTransform = Transform::Create();
 	ballTransform = Transform::Create();
@@ -471,6 +478,8 @@ int main() {
 	borderTransform = Transform::Create();
 	firstDigitTransform = Transform::Create();
 	secondDigitTransform = Transform::Create();
+	winTransform = Transform::Create();
+	loseTransform = Transform::Create();
 
 	for (int i = 0; i < 54; i++)
 	{
@@ -498,6 +507,8 @@ int main() {
 	borderTransform->SetLocalPosition(-0.14f, 0.0f, 0.4f)->SetLocalRotation(0.0f, 0.0f, 90.0f)->SetLocalScale(0.05f, 0.18f, 0.15f);
 	firstDigitTransform->SetLocalPosition(4.0f, 0.0f, -5.5f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(1.0f, 1.0f, 1.0f);
 	secondDigitTransform->SetLocalPosition(4.4f, 0.0f, -5.5f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(1.0f, 1.0f, 1.0f);
+	winTransform->SetLocalPosition(2.6f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
+	loseTransform->SetLocalPosition(2.85f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
 
 	//Ball Variables
 	float ballSpeed = 2.0f;
@@ -870,7 +881,17 @@ int main() {
 		}
 		else
 		{
-			//Nothing
+			RenderVAO(shader, loseVao, camera, loseTransform);
+			moveDir = glm::vec3(0.0f, 0.0f, 0.0f);
+			ballTransform->SetLocalPosition(1000.0f, 0.0f, 0.0f);
+		}
+
+
+		if (secondDigitScore == 5 && firstDigitScore == 4)
+		{
+			RenderVAO(shader, winVao, camera, winTransform);
+			moveDir = glm::vec3(0.0f, 0.0f, 0.0f);
+			ballTransform->SetLocalPosition(1000.0f, 0.0f, 0.0f);
 		}
 
 
