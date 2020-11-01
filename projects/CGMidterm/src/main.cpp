@@ -30,6 +30,7 @@
 #include "Utilities/ObjLoader.h"
 #include "Utilities/VertexTypes.h"
 
+
 #define LOG_GL_NOTIFICATIONS
 
 /*
@@ -67,6 +68,9 @@ void GlDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsi
 GLFWwindow* window;
 Camera::sptr camera = nullptr;
 
+bool perspective = true;
+bool isPressed = false;
+
 void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 	camera->ResizeWindow(width, height);
@@ -83,7 +87,7 @@ bool initGLFW() {
 #endif
 	
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "Fardeen Faisal - 100755369", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Brick Breaker", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Set our window resized callback
@@ -232,9 +236,9 @@ void PaddleInput(const Transform::sptr& transform, float dt) {
 
 		transform->MoveLocal(0.0f, 0.0f, 3.0f * dt);
 
-		if (transform->GetLocalPosition().x >= 4.2)
+		if (transform->GetLocalPosition().x >= 3.93)
 		{
-			transform->SetLocalPosition(4.2f, transform->GetLocalPosition().y, transform->GetLocalPosition().z);
+			transform->SetLocalPosition(3.93f, transform->GetLocalPosition().y, transform->GetLocalPosition().z);
 		}
 		
 	}
@@ -248,7 +252,7 @@ void PaddleInput(const Transform::sptr& transform, float dt) {
 		}
 		
 	}
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+	/*if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		transform->MoveLocal(-1.0f * dt, 0.0f, 0.0f);
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
@@ -259,7 +263,7 @@ void PaddleInput(const Transform::sptr& transform, float dt) {
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 		transform->MoveLocal(0.0f, 0.0f, -1.0f * dt);
-	}
+	}*/
 }
 
 struct Material
@@ -436,7 +440,7 @@ int main() {
 	// We can use operator chaining, since our Set* methods return a pointer to the instance, neat!
 	paddleTransform->SetLocalPosition(0.0f, 0.0f, -4.0f)->SetLocalRotation(0.0f, 90.0f, 0.0f)->SetLocalScale(0.2f,0.5f, 0.3f);
 	ballTransform->SetLocalPosition(0.0f, 0.0f, -2.0f)->SetLocalScale(0.3f, 0.3f, 0.3f);
-	borderTransform->SetLocalPosition(-0.14f, 0.0f, -1.1f)->SetLocalRotation(0.0f, 0.0f, 90.0f)->SetLocalScale(0.05f, 0.18f, 0.2f);
+	borderTransform->SetLocalPosition(-0.14f, 0.0f, 0.4f)->SetLocalRotation(0.0f, 0.0f, 90.0f)->SetLocalScale(0.05f, 0.18f, 0.15f);
 
 	//Ball Variables
 	float ballSpeed = 1.0f;
@@ -445,11 +449,11 @@ int main() {
 
 	int brickCounter = 0;
 	float xMove = 0.0f;
-	float yMove = 1.0f;
+	float yMove = 0.6f;
 
 	for (int y = 0; y < 6; y++)
 	{
-		yMove -= 1.0f;
+		yMove -= 0.6f;
 		for (int x = 0; x < 9; x++)
 		{
 			brickTransform[brickCounter]->SetLocalPosition(3.9f + xMove, 0.0f, 4.2f + yMove)->SetLocalRotation(0.0f, 90.0f, 0.0f)->SetLocalScale(0.3f, 0.5f, 0.4f);
@@ -575,11 +579,26 @@ int main() {
 				watcher.Poll(window);
 			}
 
+			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isPressed == false)
+			{
+				isPressed = true;
+				perspective = !perspective;
+				camera->SetProjectionType(perspective);
+				//camera->GetViewProjection();
+			}
+			else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && isPressed == true)
+			{
+				isPressed = false;
+
+			}
+
+
+
 			// We'll run some basic input to move our transform around
 			//ManipulateTransformWithInput(transforms[selectedVao], dt);
 			PaddleInput(paddleTransform, dt);
 
-			PaddleInput(brickTransform[2], dt);
+			//PaddleInput(brickTransform[2], dt);
 		}
 						
 		glClearColor(0.08f, 0.17f, 0.31f, 1.0f);
@@ -679,13 +698,18 @@ int main() {
 
 
 		//Collisions with Ball and Borders
-		if (ballTransform->GetLocalPosition().x >= 4.8f || ballTransform->GetLocalPosition().x <= -5.0f)
+		if (ballTransform->GetLocalPosition().x >= 4.4f || ballTransform->GetLocalPosition().x <= -4.7f)
 		{
 			moveDir.x = moveDir.x * (-1.0f);
 		}
 		if (ballTransform->GetLocalPosition().z >= 4.7f)
 		{
 			moveDir.z = moveDir.z * (-1.0f);
+		}
+		else if (ballTransform->GetLocalPosition().z <= -4.0f)
+		{
+			ballTransform->SetLocalPosition(0.0f, 0.0f, 0.0f);
+			// Lose life
 		}
 
 

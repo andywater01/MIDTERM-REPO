@@ -66,25 +66,42 @@ void Camera::SetFovDegrees(float value) {
 	SetFovRadians(glm::radians(value));
 }
 
+void Camera::SetProjectionType(bool perspective)
+{
+	if (perspective)
+		isPerspective = false;
+
+	else if (!perspective)
+		isPerspective = true;
+
+	__CalculateProjection();
+}
+
 const glm::mat4& Camera::GetViewProjection() const {
-	if (_isDirty) {
+	if (_isDirty && isPerspective) {
 		_viewProjection = _projection * _view;
+		_isDirty = false;
+	}
+	else if (_isDirty && !isPerspective)
+	{
+		_viewProjection = _projection1 * _view;
 		_isDirty = false;
 	}
 	return _viewProjection;
 }
 
 void Camera::__CalculateProjection() {
-	if (_isOrtho) {
-		_projection = glm::ortho(
-			-_orthoHeight * _aspectRatio, _orthoHeight * _aspectRatio, 
-			-_orthoHeight, _orthoHeight, 
-			_nearPlane, _farPlane);
-	}
-	else {
+	if (isPerspective)
+	{
 		_projection = glm::perspective(_fovRadians, _aspectRatio, _nearPlane, _farPlane);
+		_isDirty = true;
 	}
-	_isDirty = true;
+	else
+	{
+		_projection1 = glm::ortho(-6.0f, 6.0f, -6.0f, 6.0f, _nearPlane, _farPlane);
+		_isDirty = true;
+		printf("ortho");
+	}
 }
 
 void Camera::__CalculateView() {

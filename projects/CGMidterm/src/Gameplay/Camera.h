@@ -101,6 +101,8 @@ public:
 	/// </summary>
 	const glm::mat4& GetViewProjection() const;
 
+	void SetProjectionType(bool perspective);
+
 protected:
 	bool _isOrtho;
 	float _orthoHeight;
@@ -116,6 +118,8 @@ protected:
 
 	glm::mat4 _view;
 	glm::mat4 _projection;
+	glm::mat4 _projection1;
+	bool		  isPerspective = true;
 
 	// The view projection, it is mutable so we can re-calculate it during const methods
 	mutable glm::mat4 _viewProjection;
