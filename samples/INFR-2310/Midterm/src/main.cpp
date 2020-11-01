@@ -457,7 +457,7 @@ int main() {
 		});
 	
 
-	//boarder.obj
+	//border.obj
 	std::vector<glm::vec3> positions_boarder;
 	std::vector<glm::vec3> normals_boarder;
 	std::vector<glm::vec2> uvs_boarder;
@@ -754,13 +754,17 @@ int main() {
 			moveDir.y = moveDir.y * (-1.0f);
 		}*/
 
-		if (ballEntity.transform.m_pos.x <= paddleEntity.transform.m_pos.x + 2 && ballEntity.transform.m_pos.x > paddleEntity.transform.m_pos.x && ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f))
+		if (ballEntity.transform.m_pos.x <= paddleEntity.transform.m_pos.x + 2 && ballEntity.transform.m_pos.x > 
+			paddleEntity.transform.m_pos.x && ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && 
+			(ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f))
 		{
 			moveDir.y = moveDir.y * (-1.0f);
 			moveDir.x = (1.0f);
 		}
 
-		if (ballEntity.transform.m_pos.x >= paddleEntity.transform.m_pos.x - 2 && ballEntity.transform.m_pos.x <= paddleEntity.transform.m_pos.x && ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && (ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f))
+		if (ballEntity.transform.m_pos.x >= paddleEntity.transform.m_pos.x - 2 && ballEntity.transform.m_pos.x <= 
+			paddleEntity.transform.m_pos.x && ballEntity.transform.m_pos.y >= (paddleEntity.transform.m_pos.y - 1.0f) && 
+			(ballEntity.transform.m_pos.y <= paddleEntity.transform.m_pos.y + 1.0f))
 		{
 			moveDir.y = moveDir.y * (-1.0f);
 			moveDir.x = (-1.0f);
