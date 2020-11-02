@@ -346,6 +346,7 @@ int main() {
 
 	VertexArrayObject::sptr loseVao = ObjLoader::LoadFromFile("models/Game Over.obj");
 
+	VertexArrayObject::sptr backVao = ObjLoader::LoadFromFile("models/Background.obj");
 
 	static const VertexPosCol interleaved[] = {
     //     X      Y     Z       R     G    B
@@ -469,6 +470,7 @@ int main() {
 	Transform::sptr secondDigitTransform;
 	Transform::sptr winTransform;
 	Transform::sptr loseTransform;
+	Transform::sptr backTransform;
 
 	paddleTransform = Transform::Create();
 	ballTransform = Transform::Create();
@@ -480,6 +482,7 @@ int main() {
 	secondDigitTransform = Transform::Create();
 	winTransform = Transform::Create();
 	loseTransform = Transform::Create();
+	backTransform = Transform::Create();
 
 	for (int i = 0; i < 54; i++)
 	{
@@ -509,6 +512,7 @@ int main() {
 	secondDigitTransform->SetLocalPosition(4.4f, 0.0f, -5.5f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(1.0f, 1.0f, 1.0f);
 	winTransform->SetLocalPosition(2.6f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
 	loseTransform->SetLocalPosition(2.85f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
+	backTransform->SetLocalPosition(2.85f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 0.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
 
 	//Ball Variables
 	float ballSpeed = 2.0f;
@@ -563,6 +567,7 @@ int main() {
 	Texture2DData::sptr baseBrickMap = Texture2DData::LoadFromFile("images/GreenBrick.png");
 	Texture2DData::sptr hitBrickMap = Texture2DData::LoadFromFile("images/YellowBrick.png");
 	Texture2DData::sptr boundaryMap = Texture2DData::LoadFromFile("images/BoundaryColour.png");
+	Texture2DData::sptr backMap = Texture2DData::LoadFromFile("images/Background.png");
 
 	// Create a texture from the data
 	Texture2D::sptr diffuse = Texture2D::Create();
@@ -590,6 +595,9 @@ int main() {
 	Texture2D::sptr hitBrickDiffuse = Texture2D::Create();
 	hitBrickDiffuse->LoadData(hitBrickMap);
 
+	Texture2D::sptr BackDiffuse = Texture2D::Create();
+	BackDiffuse->LoadData(backMap);
+
 	// Creating an empty texture
 	Texture2DDescription desc = Texture2DDescription();
 	desc.Width = 1;
@@ -608,6 +616,7 @@ int main() {
 	Material baseBrickMaterial;
 	Material hitBrickMaterial;
 	Material boundaryMaterial;
+	Material backMaterial;
 
 	paddleMaterial.Albedo = paddleDiffuse;
 	paddleMaterial.Specular = specular;
@@ -628,6 +637,10 @@ int main() {
 	boundaryMaterial.Albedo = boundaryDiffuse;
 	boundaryMaterial.Specular = specular;
 	boundaryMaterial.Shininess = 16.0f;
+
+	backMaterial.Albedo = BackDiffuse;
+	backMaterial.Specular = specular;
+	backMaterial.Shininess = 16.0f;
 	
 	materials[0].Albedo    = diffuse;
 	materials[0].NewTexture = diffuse2;
@@ -773,6 +786,9 @@ int main() {
 
 		RenderVAO(shader, paddleVao, camera, paddleTransform);
 
+		//Background Render
+		RenderVAO(shader, backVao, camera, backTransform);
+		
 
 		if (firstDigitScore == 0)
 		{
@@ -863,6 +879,7 @@ int main() {
 
 		RenderVAO(shader, ballVao, camera, ballTransform);
 
+		
 
 		if (lives == 3)
 		{
