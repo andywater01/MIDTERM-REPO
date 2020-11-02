@@ -512,7 +512,7 @@ int main() {
 	secondDigitTransform->SetLocalPosition(4.4f, 0.0f, -5.5f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(1.0f, 1.0f, 1.0f);
 	winTransform->SetLocalPosition(2.6f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
 	loseTransform->SetLocalPosition(2.85f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
-	backTransform->SetLocalPosition(2.85f, 0.0f, 0.0f)->SetLocalRotation(90.0f, 0.0f, 0.0f)->SetLocalScale(2.0f, 2.0f, 2.0f);
+	backTransform->SetLocalPosition(0.0f, -3.0f, 0.5f)->SetLocalRotation(0.0f, 0.0f, 90.0f)->SetLocalScale(2.0f, 2.0f, 1.9f);
 
 	//Ball Variables
 	float ballSpeed = 2.0f;
@@ -786,8 +786,7 @@ int main() {
 
 		RenderVAO(shader, paddleVao, camera, paddleTransform);
 
-		//Background Render
-		RenderVAO(shader, backVao, camera, backTransform);
+		
 		
 
 		if (firstDigitScore == 0)
@@ -920,6 +919,10 @@ int main() {
 		RenderVAO(shader, borderVao, camera, borderTransform);
 
 		
+		//Background Render
+		backMaterial.Albedo->Bind(0);
+		backMaterial.Specular->Bind(1);
+		RenderVAO(shader, backVao, camera, backTransform);
 
 
 		for (int i = 0; i < 54; i++)
